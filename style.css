@@ -4,7 +4,7 @@
   border: 2px solid black
 }
 
-#custom-menu {
+#summary-menu {
   display: none;
   position: absolute;
   background-color: white;
@@ -21,12 +21,21 @@
   padding: 5px;
 }
 
-#element-container {
+#answer-menu {
+  display: none;
+  z-index: 2;
+  position: absolute;
+  background-color: white;
+  box-shadow: 5px 5px 5px lightgray;
+  padding: 5px;
+}
+
+#summary-container {
   border: 2px solid black;
   margin: 10px;
 }
 
-.element input{
+.dropDown input{
   display: block;
   margin-bottom: 5px;
 }
