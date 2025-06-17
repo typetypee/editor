@@ -1,0 +1,46 @@
+#add-element {
+  width: 100px;
+  padding: 10px;
+  border: 2px solid black
+}
+
+#custom-menu {
+  display: none;
+  position: absolute;
+  background-color: white;
+  box-shadow: 5px 5px 5px lightgray;
+  padding: 5px;
+}
+
+#message-menu {
+  display: none;
+  z-index: 2;
+  position: absolute;
+  background-color: white;
+  box-shadow: 5px 5px 5px lightgray;
+  padding: 5px;
+}
+
+#element-container {
+  border: 2px solid black;
+  margin: 10px;
+}
+
+.element input{
+  display: block;
+  margin-bottom: 5px;
+}
+
+.message {
+  position: relative;
+}
+
+.answer {
+  margin-left: 20px;
+  border: 2px solid red;
+  position: relative;
+}
+
+.question {
+  border: 3px solid orange;
+}

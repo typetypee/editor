@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset = "utf-8">
+  <title>Editor</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+
+  <p>Add JSON file or paste</p>
+  <input type = "file" id = "select-file">
+  <br>
+  <textarea id = "json-file"></textarea>
+  <button id = "enter-json">Enter</button>
+
+  <br>
+  <br>
+  Area name:
+  <input type = "text" id = "area-name">
+
+  <div id = "element-container">
+
+  </div>
+
+  <div id = "add-element">Add element</div>
+
+  <div id = "custom-menu">
+    <p id = "m-change">Change name</p>
+    <p id = "m-add">Add message</p>
+  </div>
+
+  <div id = "message-menu">
+    <input type="checkbox" id="isQuestion">
+    <label for="isQuestion">Is a Question?</label><br>
+    <input type="checkbox" id="hasNext">
+    <label for="hasNext">Has Next?</label><br>
+    <input type="checkbox" id="hasName">
+    <label for="hasName">Has name?</label><br>
+  </div>
+
+  <button id = "copy-json">Copy JSON to clipboard</button>
+
+  <script src = "index.js"></script>
+
+</body>
+
+</html>
