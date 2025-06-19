@@ -5,11 +5,17 @@ const messageMenu = document.getElementById("message-menu");
 const addAnswerButton = document.getElementById("add-answer");
 const deleteMessageButton = document.getElementById("delete-message");
 const answerMenu = document.getElementById("answer-menu");
+const deleteAnswerButton = document.getElementById("delete-answer")
 let currentElementRightClicked = "";
-let currentMessageRightClicked = "";
 
 //checkboxes
 const isQuestionCheckbox = document.getElementById("isQuestion");
+const hasNameCheckbox = document.getElementById("hasName");
+const hasNextCheckbox = document.getElementById("hasNext");
+const hasLabelCheckbox = document.getElementById("hasLabel");
+
+const hasCompleteCheckbox = document.getElementById("hasComplete");
+const isCompleteCheckbox = document.getElementById("isComplete");
 
 //this button creates a new speech block/summary
 addButton.addEventListener("click", function(){
@@ -39,6 +45,9 @@ fileSelector.addEventListener("change", async function(event){
 
 //process the text in the textarea into the editor
 document.getElementById("enter-json").addEventListener("click", function(){
+
+  summaryContainer.innerHTML = "";
+
   var data = JSON.parse(jsonTextArea.value); //the parsed data
   textNodeName.value = Object.keys(data)[0]; ///get the name of the text data chunk
 
@@ -66,21 +75,48 @@ document.getElementById("enter-json").addEventListener("click", function(){
     for(var s = 0; s < actualData[keyedData[i]].length; s++) {
       //parse through each message for the chunk
       for(var m = 0; m < actualData[keyedData[i]][s].length; m++) {
-        //create new message
+
+        //get the actual content of the message
+        let message = actualData[keyedData[i]][s][m]; //will contain name, message, next, answers, etc.
+        
         let messageContainer = document.createElement("div"); //container for either the message or questions + answers
+        messageContainer.classList.add("messageContainer");
+        //DISPLAY THE NAME
+
+        let nameContainer = document.createElement("div");
+        nameContainer.classList.add("nameContainer");
+
+        let nameLabel = document.createElement("a");
+        nameLabel.innerText = "Name: "
+        nameContainer.appendChild(nameLabel);
+
+        let name = document.createElement("input");
+        name.classList.add("name");
+
+        name.type = "text";
+        nameContainer.appendChild(name);
+
+        messageContainer.appendChild(nameContainer);
+
+        if(message.n !== undefined) {
+          name.value = message.n;
+          nameContainer.style.display = "block";
+        } else {
+          name.value = "";
+          nameContainer.style.display = "none";
+        }
+
+        //create new message
         let messageInput = document.createElement("input");
         messageContainer.appendChild(messageInput);
         messageInput.type = "text";
         messageInput.classList.add("message");
 
-        //get the actual content of the message
-        let message = actualData[keyedData[i]][s][m];
-        console.log(message)
 
+        //IF IS A MESSAGE
         //display the message in the box
-        if(message.m !== undefined) {
-          messageInput.value = message.m;
-        }
+        if(message.m !== undefined) messageInput.value = message.m;
+        //IF IS A QUESTION
         else if (message.question !== undefined) {
           messageInput.value = message.question;
           //different coloring if the message is a question
@@ -88,34 +124,145 @@ document.getElementById("enter-json").addEventListener("click", function(){
 
           //display the answers that can go along with the question
           for(let q = 0; q < message.answers.length; q++) {
+            let answerContainer = document.createElement("div");
             let answer = document.createElement("input");
             answer.type = "text";
             answer.classList.add("answer");
             answer.value = message.answers[q].m;
-            messageContainer.appendChild(answer);
+            answerContainer.appendChild(answer);
+            answerContainer.classList.add("answerContainer");
+            messageContainer.appendChild(answerContainer);
             //add a right click context menu to the answers
             answer.addEventListener("contextmenu", function(e){
               summaryMenu.style.display = "none";
               messageMenu.style.display = "none";
               answerMenu.style.display = "block";
+              currentElementRightClicked = answer;
               e.preventDefault();
             })
+            //add "next" label to the answers
+            if(message.answers[q].next !== undefined) {
+              let nextContainer = document.createElement("div");
+              let nextLabel = document.createElement("a");
+              nextLabel.innerText = "Next: "
+              nextContainer.appendChild(nextLabel);
+              let next = document.createElement("input");
+              next.type = "text";
+              next.value = message.answers[q].next;
+              next.classList.add("next");
+              currentElementRightClicked = nextContainer;
+              nextContainer.appendChild(next);
+        
+              nextContainer.classList.add("nextContainer");
+              answerContainer.appendChild(nextContainer);
+
+            }
+
           }
 
         }
+
+        newDropDown.appendChild(messageContainer);
+          
+        //add the label label, if it is checked
+        let labelContainer = document.createElement("div");
+        let labelLabel = document.createElement("a");
+        labelLabel.innerText = "Label: "
+        labelContainer.appendChild(labelLabel);
+        let label = document.createElement("input");
+        label.type = "text";
+        label.classList.add("next");
+        currentElementRightClicked = labelContainer;
+        labelContainer.appendChild(label);
+      
+        labelContainer.classList.add("labelContainer");
+        messageContainer.appendChild(labelContainer);
+
+        if(message.label !== undefined) {
+          label.value = message.label;
+          labelContainer.style.display = "block";
+        }
+        else {
+          label.value = "";
+          labelContainer.style.display = "none";
+        }
+        
+        //add the next label
+        let nextContainer = document.createElement("div");
+        let nextLabel = document.createElement("a");
+        nextLabel.innerText = "Next: "
+        nextContainer.appendChild(nextLabel);
+        let next = document.createElement("input");
+        next.type = "text";
+        next.classList.add("next");
+        currentElementRightClicked = nextContainer;
+        nextContainer.appendChild(next);
+      
+        nextContainer.classList.add("nextContainer");
+        messageContainer.appendChild(nextContainer);
+
+        if(message.next !== undefined) {
+          next.value = message.next;
+          nextContainer.style.display = "block";
+        }
+        else {
+          next.value = "";
+          nextContainer.style.display = "none";
+        }
+
+        //make isComplete container appear or not!
+        let completeContainer = document.createElement("div");
+        let isCompleteCheckbox = document.createElement("input");
+        isCompleteCheckbox.type = "checkbox";
+        completeContainer.appendChild(isCompleteCheckbox);
+
+        let isCompleteLabel = document.createElement("label");
+        isCompleteLabel.innerText = "Is complete?"
+        completeContainer.appendChild(isCompleteLabel);
+        
+        completeContainer.classList.add("completeContainer");
+
+        messageContainer.appendChild(completeContainer);
+
+        if(message.complete !== undefined) {
+          completeContainer.style.display = "block";
+          isCompleteCheckbox.checked = true;
+        }
+        else {
+          completeContainer.style.display = "none";
+          isCompleteCheckbox.checked = false;
+        }
+        
+
         //add a custom context menu for the message/question
         messageInput.addEventListener("contextmenu", function(e){
-          currentMessageRightClicked = messageInput;
+          currentElementRightClicked = messageInput;
           summaryMenu.style.display = "none";
           answerMenu.style.display = "none";
           messageMenu.style.display = "block";
-          currentMessageRightClicked = messageInput;
+          currentElementRightClicked = messageInput;
           e.preventDefault();
           //check and uncheck the boxes automatically when the context menu is open
-          if(messageInput.classList.contains("question")) isQuestionCheckbox.checked  = true
-          else isQuestionCheckbox.checked = false;
+          if(messageInput.classList.contains("question")) {
+            isQuestionCheckbox.checked  = true
+            //hide or show buttons depending on whether or not the message is marked as a question
+            addAnswerButton.style.display = "block"
+          }
+          else {
+            isQuestionCheckbox.checked = false;
+            addAnswerButton.style.display = "none"
+          }
+
+          if(window.getComputedStyle(labelContainer, null).getPropertyValue("display") !== "none") hasLabelCheckbox.checked = true;
+          else hasLabelCheckbox.checked = false;
+          if(window.getComputedStyle(nameContainer, null).getPropertyValue("display") !== "none") hasNameCheckbox.checked = true;
+          else hasNameCheckbox.checked = false;
+          if(window.getComputedStyle(nextContainer, null).getPropertyValue("display") !== "none") hasNextCheckbox.checked = true;
+          else hasNextCheckbox.checked = false;
+          if(window.getComputedStyle(completeContainer, null).getPropertyValue("display") !== "none") hasCompleteCheckbox.checked = true;
+          else hasCompleteCheckbox.checked = false;
         })
-        newDropDown.appendChild(messageContainer);
+
       }
     }
 
@@ -163,26 +310,67 @@ window.addEventListener("contextmenu", function(e){
 messageMenu.addEventListener("click", function(){
   //check and uncheck the question checkbox and update status
   if(isQuestionCheckbox.checked) {
-    console.log(currentMessageRightClicked)
-    currentMessageRightClicked.classList.add("question");
+    currentElementRightClicked.classList.add("question");
   } else {
     //if unchecked...
-    currentMessageRightClicked.classList.remove("question");
+    currentElementRightClicked.classList.remove("question");
 
-    //very important note: the container of the currentMessageRightClicked (which in this case, should be the question input), is the parent of the answers, the question is NOT the parent of the answers
+    //very important note: the container of the currentElementRightClicked (which in this case, should be the question input), is the parent of the answers, the question is NOT the parent of the answers
     //remove the answers elements if the question is unchecked
-    let answers = currentMessageRightClicked.parentNode.getElementsByClassName("answer");
+    let answers = currentElementRightClicked.parentNode.getElementsByClassName("answer");
     for(i = 0; i < answers.length; i++) {
-      console.log(answers[i])
       answers[i].remove();
       i--
     }
 
   }
   messageMenu.style.display = "none";
+
+  //update status
+  if(hasNameCheckbox.checked) currentElementRightClicked.parentNode.getElementsByClassName("nameContainer")[0].style.display = "block";
+  else currentElementRightClicked.parentNode.getElementsByClassName("nameContainer")[0].style.display = "none";
+
+  if(hasNextCheckbox.checked) currentElementRightClicked.parentNode.getElementsByClassName("nextContainer")[0].style.display = "block";
+  else currentElementRightClicked.parentNode.getElementsByClassName("nextContainer")[0].style.display = "none";
+
+  if(hasLabelCheckbox.checked) currentElementRightClicked.parentNode.getElementsByClassName("labelContainer")[0].style.display = "block";
+  else currentElementRightClicked.parentNode.getElementsByClassName("labelContainer")[0].style.display = "none";
+
+  if(hasCompleteCheckbox.checked) currentElementRightClicked.parentNode.getElementsByClassName("completeContainer")[0].style.display = "block";
+  else currentElementRightClicked.parentNode.getElementsByClassName("completeContainer")[0].style.display = "none";
+
+  /** 
+  if(hasCompleteCheckbox.checked) currentElementRightClicked.parentNode.getElementsByClassName("completeContainer")[0].style.display = "inline-block";
+  else currentElementRightClicked.parentNode.getElementsByClassName("completeContainer")[0].style.display = "none";*/
+
 })
 
-addAnswerButton.addEventListener("click", function(){}
+//will only appear in the context menu if the answer is a question
+addAnswerButton.addEventListener("click", function(){
+
+  console.log(currentElementRightClicked)
+  let answer = document.createElement("input");
+  answer.type = "text";
+  answer.classList.add("answer");
+  answer.value = "";
+  //add a right click context menu to the answers
+  answer.addEventListener("contextmenu", function(e){
+    summaryMenu.style.display = "none";
+    messageMenu.style.display = "none";
+    answerMenu.style.display = "block";
+    e.preventDefault();
+  })
+
+  currentElementRightClicked.parentNode.appendChild(answer);
+})
+
+deleteMessageButton.addEventListener("click", function(){
+  currentElementRightClicked.remove();
+})
+
+deleteAnswerButton.addEventListener("click", function(){
+  currentElementRightClicked.remove();
+})
 
 //hide context menus when clicking outside of them
 function hideContextMenus(e) {
@@ -190,7 +378,6 @@ function hideContextMenus(e) {
     summaryMenu.style.display = "none";
     messageMenu.style.display = "none";
     answerMenu.style.display = "none";
-    console.log("Hiding context menus");
   }
 }
 

@@ -36,20 +36,49 @@
 }
 
 .dropDown input{
-  display: block;
   margin-bottom: 5px;
+}
+
+.messageContainer {
+  background-color: rgb(211, 211, 211);
+  padding: 3px;
+  border-radius: 5px;
+  margin-top: 3px;
 }
 
 .message {
   position: relative;
+  width: 50%
 }
 
 .answer {
-  margin-left: 20px;
   border: 2px solid red;
   position: relative;
+  display: inline-block;
 }
 
 .question {
   border: 3px solid orange;
+}
+
+.next {
+  position: relative;
+  border: 2px solid gray;
+}
+
+.nextContainer, .labelContainer, .answerContainer .completeContainer {
+  margin-left: 20px;
+  position: relative;
+  white-space: nowrap;
+}
+
+.name {
+  position: relative;
+  border: 2px solid black;
+}
+
+.nameContainer {
+  position: relative;
+  white-space: nowrap;
+  display: block;
 }

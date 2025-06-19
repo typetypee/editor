@@ -35,10 +35,14 @@
   <div id = "message-menu">
     <input type="checkbox" id="isQuestion">
     <label for="isQuestion">Is a Question?</label><br>
-    <input type="checkbox" id="hasNext">
-    <label for="hasNext">Has Next?</label><br>
     <input type="checkbox" id="hasName">
     <label for="hasName">Has name?</label><br>
+    <input type="checkbox" id="hasNext">
+    <label for="hasNext">Has Next?</label>
+    <input type="checkbox" id="hasLabel">
+    <label for="hasLabel">Has label?</label><br>
+    <input type = "checkbox" id = "hasComplete">
+    <label for="hasComplete">Has IsComplete label?</label><br>
     <button id = "delete-message">Delete message</button>
     <button id = "add-answer">Add answer</button>
   </div>
@@ -49,8 +53,45 @@
 
   <button id = "copy-json">Copy JSON to clipboard</button>
 
-  <script src = "index.js"></script>
+  <details><summary>Speech json syntax</summary>
+    <h2>Example</h2>
+    <div style = "border: 2px solid gray;"></div>
+      <textarea rows = "10" style = "width: 80%; height: 50%; resize: none;">
+      "roy": [
+        [
+          {"m": "My friend Cab lost his right angle.", "n": "Roy"},
+          {"m": "How will he ever get through customs without it?"},
+          {"question": "Please help him.", "answers": [
+            {"m": "Hmmmmm fine.", "next": "helped"},
+            {"m": "No I don't feel like it. :/", "next": "rejected"}
+            ]
+          },
+          {"m": "Poor Cab. :(", "label": "rejected", "next": "markNodeDone"},
+          {"m": "He needs it by tonight, find it quick. D:", "label": "helped"},
+          {"m": "Go interrogate Cab.", "complete": "false"}
+        ],
+        [
+          {"m": "What's Cab going to do?", "n": "Roy"},
+          {"m": "So sad. :("}
+        ]
+      ]
+      </textarea>
+      <p>Message nodes are organized based on the character speaks them. In this case, "roy" has two message nodes indicated by the []</p>
+      <p>"m" is for the actual message.</p>
+      <p>"n" tells the text system what the display name for the message will be. The "n" does not need to be repeated for the following messages if the name is not being changed.</p>
+      <p>"question", a type of "m". A "question" will always have an array of "answers" with it.</p>
+      <p>"answers" is an array that will contain one or more "m". The "m" should generally have a "next" attatched to it to indicate where the text system should jump next in the story.</p>
+      <p>"label" goes hand in hand with "next". It tells the text system the location of where it's supposed to jump to, after it has been given the name of the location by "next".</p>
+      <p>"next" tells the text system where in the dialogue it should jump to next.</p>
+      <b>"next" special cases</b>
+          <p>    "markNodeDone" will end the message lineup early, at the current message the text system is on.</p>
+          <p>    "endNode", I honestly don't remember the difference between this and "markNodeDone"</p>
+      <p>"complete" will tell the text system whether this is a message node that has already been viewed, and so will not be played again.</p>
 
+    </div>
+  </details>
+  <script src = "index.js"></script>
+    
 </body>
 
 </html>
