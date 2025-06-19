@@ -26,13 +26,18 @@
 
   <div id = "add-element">Add element</div>
 
-  <div id = "summary-menu">
-    <p id = "m-change">Change name</p>
-    <p id = "m-add">Add message</p>
-    <p id = "m-delete">Delete section</p>
+  <div id = "summary-menu" class = "context-menu">
+    <p id = "change-name">Change name</p>
+    <p id = "add-chunk">Add chunk</p>
+    <p id = "delete-summary">Delete section</p>
   </div>
 
-  <div id = "message-menu">
+  <div id = "message-chunk-menu" class = "context-menu">
+    <p id = "add-message">Add message</p>
+    <p id = "delete-chunk">Delete chunk</p>
+  </div>
+
+  <div id = "message-menu" class = "context-menu">
     <input type="checkbox" id="isQuestion">
     <label for="isQuestion">Is a Question?</label><br>
     <input type="checkbox" id="hasName">
@@ -47,7 +52,7 @@
     <button id = "add-answer">Add answer</button>
   </div>
 
-  <div id = "answer-menu">
+  <div id = "answer-menu" class = "context-menu">
     <button id = "delete-answer">Delete answer</button>
   </div>
 

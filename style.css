@@ -12,16 +12,7 @@
   padding: 5px;
 }
 
-#message-menu {
-  display: none;
-  z-index: 2;
-  position: absolute;
-  background-color: white;
-  box-shadow: 5px 5px 5px lightgray;
-  padding: 5px;
-}
-
-#answer-menu {
+#message-menu, #message-chunk-menu, #answer-menu {
   display: none;
   z-index: 2;
   position: absolute;
@@ -66,7 +57,7 @@
   border: 2px solid gray;
 }
 
-.nextContainer, .labelContainer, .answerContainer .completeContainer {
+.nextContainer, .labelContainer, .answerContainer, .completeContainer {
   margin-left: 20px;
   position: relative;
   white-space: nowrap;
@@ -81,4 +72,12 @@
   position: relative;
   white-space: nowrap;
   display: block;
+}
+
+.messageChunkContainer {
+  background-color: rgb(81, 81, 81);
+  padding: 5px;
+  radius: 5px;
+  margin-bottom: 10px;
+  min-height: 10px;
 }

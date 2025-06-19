@@ -1,11 +1,15 @@
 const addButton = document.getElementById("add-element");
 const summaryContainer = document.getElementById("summary-container");
 const summaryMenu = document.getElementById("summary-menu");
+
+const messageChunkMenu = document.getElementById("message-chunk-menu");
+
 const messageMenu = document.getElementById("message-menu");
 const addAnswerButton = document.getElementById("add-answer");
-const deleteMessageButton = document.getElementById("delete-message");
+
 const answerMenu = document.getElementById("answer-menu");
 const deleteAnswerButton = document.getElementById("delete-answer")
+
 let currentElementRightClicked = "";
 
 //checkboxes
@@ -25,8 +29,10 @@ addButton.addEventListener("click", function(){
   newDropDown.classList.add("dropDown")
 
   newDropDown.addEventListener("contextmenu", function(e){
-    summaryMenu.style.display = "block";
+    messageChunkContainer.appendChild(summaryMenu);
     currentElementRightClicked = newDropDown;
+    summaryMenu.style.left = e.pageX + "px";
+    summaryMenu.style.top = e.pageY + "px";
     e.preventDefault();
   })
 
@@ -43,9 +49,26 @@ fileSelector.addEventListener("change", async function(event){
   jsonTextArea.value = text;
 })
 
+function createMessageChunk() {
+  let messageChunkContainer = document.createElement("div");
+  messageChunkContainer.classList.add("messageChunkContainer");
+
+  //make the box show a custom context menu when right clicked
+  messageChunkContainer.addEventListener("contextmenu", function(e){
+    //hide the other menus!
+    hideOtherContextMenus(messageChunkMenu);
+    currentElementRightClicked = messageChunkContainer;
+    messageChunkMenu.style.left = e.pageX + "px";
+    messageChunkMenu.style.top = e.pageY + "px";
+    e.preventDefault();
+  })
+
+  return messageChunkContainer;
+}
+
 //process the text in the textarea into the editor
 document.getElementById("enter-json").addEventListener("click", function(){
-
+  //i think i really mean "dropDownContainer"
   summaryContainer.innerHTML = "";
 
   var data = JSON.parse(jsonTextArea.value); //the parsed data
@@ -65,24 +88,30 @@ document.getElementById("enter-json").addEventListener("click", function(){
 
     //make the box show a custom context menu when right clicked
     newDropDown.querySelector("summary").addEventListener("contextmenu", function(e){
-      messageMenu.style.display = "none"; //make sure to hide the "message" context menu
-      document.getElementById("summary-menu").style.display = "block";
+      hideOtherContextMenus(summaryMenu);
       currentElementRightClicked = newDropDown;
+      summaryMenu.style.left = e.pageX + "px";
+      summaryMenu.style.top = e.pageY + "px";
       e.preventDefault();
     })
     //note that an npc can have more than one chunk of a messages that can be triggered
     //parse through each chunk
     for(var s = 0; s < actualData[keyedData[i]].length; s++) {
+
+      let messageChunkContainer = createMessageChunk();
+
       //parse through each message for the chunk
       for(var m = 0; m < actualData[keyedData[i]][s].length; m++) {
 
         //get the actual content of the message
         let message = actualData[keyedData[i]][s][m]; //will contain name, message, next, answers, etc.
         
+        //create the message container
         let messageContainer = document.createElement("div"); //container for either the message or questions + answers
         messageContainer.classList.add("messageContainer");
-        //DISPLAY THE NAME
+        messageChunkContainer.appendChild(messageContainer);
 
+        //DISPLAY THE NAME
         let nameContainer = document.createElement("div");
         nameContainer.classList.add("nameContainer");
 
@@ -112,7 +141,6 @@ document.getElementById("enter-json").addEventListener("click", function(){
         messageInput.type = "text";
         messageInput.classList.add("message");
 
-
         //IF IS A MESSAGE
         //display the message in the box
         if(message.m !== undefined) messageInput.value = message.m;
@@ -134,35 +162,31 @@ document.getElementById("enter-json").addEventListener("click", function(){
             messageContainer.appendChild(answerContainer);
             //add a right click context menu to the answers
             answer.addEventListener("contextmenu", function(e){
-              summaryMenu.style.display = "none";
-              messageMenu.style.display = "none";
-              answerMenu.style.display = "block";
+              hideOtherContextMenus(answerMenu);
               currentElementRightClicked = answer;
+              answerMenu.style.left = e.pageX + "px";
+              answerMenu.style.top = e.pageY + "px";
               e.preventDefault();
             })
-            //add "next" label to the answers
-            if(message.answers[q].next !== undefined) {
-              let nextContainer = document.createElement("div");
-              let nextLabel = document.createElement("a");
-              nextLabel.innerText = "Next: "
-              nextContainer.appendChild(nextLabel);
-              let next = document.createElement("input");
-              next.type = "text";
-              next.value = message.answers[q].next;
-              next.classList.add("next");
-              currentElementRightClicked = nextContainer;
-              nextContainer.appendChild(next);
-        
-              nextContainer.classList.add("nextContainer");
-              answerContainer.appendChild(nextContainer);
 
-            }
+            //add "next" label to the answers
+            let nextContainer = document.createElement("div");
+            let nextLabel = document.createElement("a");
+            nextLabel.innerText = "Next: "
+            nextContainer.appendChild(nextLabel);
+            let next = document.createElement("input");
+            next.type = "text";
+            next.classList.add("next");
+            nextContainer.appendChild(next);
+      
+            nextContainer.classList.add("nextContainer");
+            answerContainer.appendChild(nextContainer);
+
+            if(message.answers[q].next !== undefined) next.value = message.answers[q].next;
+            else next.value = "";
 
           }
-
         }
-
-        newDropDown.appendChild(messageContainer);
           
         //add the label label, if it is checked
         let labelContainer = document.createElement("div");
@@ -235,13 +259,13 @@ document.getElementById("enter-json").addEventListener("click", function(){
         
 
         //add a custom context menu for the message/question
-        messageInput.addEventListener("contextmenu", function(e){
-          currentElementRightClicked = messageInput;
-          summaryMenu.style.display = "none";
-          answerMenu.style.display = "none";
-          messageMenu.style.display = "block";
-          currentElementRightClicked = messageInput;
+        messageContainer.addEventListener("contextmenu", function(e){
+          hideOtherContextMenus(messageMenu);
+          currentElementRightClicked = messageContainer;
+          messageMenu.style.left = e.pageX + "px";
+          messageMenu.style.top = e.pageY + "px";
           e.preventDefault();
+          e.stopPropagation();
           //check and uncheck the boxes automatically when the context menu is open
           if(messageInput.classList.contains("question")) {
             isQuestionCheckbox.checked  = true
@@ -262,8 +286,8 @@ document.getElementById("enter-json").addEventListener("click", function(){
           if(window.getComputedStyle(completeContainer, null).getPropertyValue("display") !== "none") hasCompleteCheckbox.checked = true;
           else hasCompleteCheckbox.checked = false;
         })
-
       }
+      newDropDown.appendChild(messageChunkContainer);
     }
 
     summaryContainer.appendChild(newDropDown);
@@ -272,83 +296,128 @@ document.getElementById("enter-json").addEventListener("click", function(){
 
 //CONTEXT MENU STUFF
 
-//move the context menus to the mouse position
-window.addEventListener("contextmenu", function(e){
-    summaryMenu.style.left = e.pageX + "px";
-    summaryMenu.style.top = e.pageY + "px";
-    messageMenu.style.left = e.pageX + "px";
-    messageMenu.style.top = e.pageY + "px";
-    answerMenu.style.left = e.pageX + "px";
-    answerMenu.style.top = e.pageY + "px";
-
-})
-
+//FOR THE SUMMARY MENU
 //adds events for the context menu
 //for editing a speech block (the dropdown box)
-  //change the name of the speech block
-  document.getElementById("m-change").addEventListener("click", function(){
-    currentElementRightClicked.querySelector("summary").innerHTML = prompt("New element name: ", "Untitled");
-    summaryMenu.style.display = "none";
+//change the name of the speech block
+document.getElementById("change-name").addEventListener("click", function(){
+  currentElementRightClicked.querySelector("summary").innerHTML = prompt("New element name: ", "Untitled");
+  summaryMenu.style.display = "none";
+})
+
+//add a message chunk
+document.getElementById("add-chunk").addEventListener("click", function(){
+  currentElementRightClicked.appendChild(createMessageChunk());
+  summaryMenu.style.display = "none";
+})
+
+document.getElementById("delete-summary").addEventListener("click", function() {
+  currentElementRightClicked.remove();
+})
+
+//FOR THE MESSAGE CHUNK MENU
+//for adding a message to a message chunk
+document.getElementById("add-message").addEventListener("click", function() {
+  let messageContainer = document.createElement("div"); //for holding the input
+  let messageInput = document.createElement("input");
+  messageContainer.classList.add("messageContainer");
+  messageInput.classList.add("message");
+  messageContainer.appendChild(messageInput);
+  messageInput.type = "text";
+  /**messageContainer.addEventListener("click", function(){
+    currentM = messageContainer;
+
+  })**/
+
+
+  messageContainer.addEventListener("contextmenu", function(e){
+    hideOtherContextMenus(messageMenu);
+    currentElementRightClicked = messageContainer;
+    messageMenu.style.left = e.pageX + "px";
+    messageMenu.style.top = e.pageY + "px";
+    e.preventDefault();
+    e.stopPropagation();
   })
 
-//for adding a message to a speech block
-  document.getElementById("m-add").addEventListener("click", function(){
-    let messageContainer = document.createElement("div"); //for holding the input
-    let newMessage = document.createElement("input");
-    messageContainer.appendChild(newMessage);
-    newMessage.type = "text";
-    /**messageContainer.addEventListener("click", function(){
-      currentM = messageContainer;
+  currentElementRightClicked.appendChild(messageContainer);
+  messageChunkMenu.style.display = "none";
+})
 
-    })**/
+document.getElementById("delete-chunk").addEventListener("click", function() {
+  currentElementRightClicked.remove();
+})
 
-    currentElementRightClicked.appendChild(newMessage);
-    summaryMenu.style.display = "none";
-  })
-
+//THE MESSAGE MENU
 //message/question context menu
 messageMenu.addEventListener("click", function(){
   //check and uncheck the question checkbox and update status
   if(isQuestionCheckbox.checked) {
-    currentElementRightClicked.classList.add("question");
+    currentElementRightClicked.getElementsByClassName("message")[0].classList.add("question");
+    //add an answer and an answer container
+    let answerContainer = document.createElement("div");
+    let answer = document.createElement("input");
+    answer.type = "text";
+    answer.classList.add("answer");
+    answer.value = "";
+    answerContainer.appendChild(answer);
+    answerContainer.classList.add("answerContainer");
+    currentElementRightClicked.appendChild(answerContainer);
+    //add a right click context menu to the answers
+    answer.addEventListener("contextmenu", function(e){
+      hideOtherContextMenus(answerMenu);
+      currentElementRightClicked = answer;
+      answerMenu.style.left = e.pageX + "px";
+      answerMenu.style.top = e.pageY + "px";
+      e.preventDefault();
+    })
+
+    //add "next" label to the answers
+    let nextContainer = document.createElement("div");
+    let nextLabel = document.createElement("a");
+    nextLabel.innerText = "Next: "
+    nextContainer.appendChild(nextLabel);
+    let next = document.createElement("input");
+    next.type = "text";
+    next.value = "";
+    next.classList.add("next");
+    nextContainer.appendChild(next);
+
+    nextContainer.classList.add("nextContainer");
+    answerContainer.appendChild(nextContainer);
+
   } else {
     //if unchecked...
-    currentElementRightClicked.classList.remove("question");
+    currentElementRightClicked.getElementsByClassName("message")[0].classList.remove("question");
 
-    //very important note: the container of the currentElementRightClicked (which in this case, should be the question input), is the parent of the answers, the question is NOT the parent of the answers
+    //very important note: the currentElementRightClicked is the messageContainer
     //remove the answers elements if the question is unchecked
-    let answers = currentElementRightClicked.parentNode.getElementsByClassName("answer");
-    for(i = 0; i < answers.length; i++) {
-      answers[i].remove();
-      i--
-    }
-
+    currentElementRightClicked.getElementsByClassName("answerContainer").remove();
   }
-  messageMenu.style.display = "none";
 
   //update status
-  if(hasNameCheckbox.checked) currentElementRightClicked.parentNode.getElementsByClassName("nameContainer")[0].style.display = "block";
-  else currentElementRightClicked.parentNode.getElementsByClassName("nameContainer")[0].style.display = "none";
+  console.log(currentElementRightClicked)
+  if(hasNameCheckbox.checked) currentElementRightClicked.getElementsByClassName("nameContainer")[0].style.display = "block";
+  else currentElementRightClicked.getElementsByClassName("nameContainer")[0].style.display = "none";
 
-  if(hasNextCheckbox.checked) currentElementRightClicked.parentNode.getElementsByClassName("nextContainer")[0].style.display = "block";
-  else currentElementRightClicked.parentNode.getElementsByClassName("nextContainer")[0].style.display = "none";
+  if(hasNextCheckbox.checked) currentElementRightClicked.getElementsByClassName("nextContainer")[0].style.display = "block";
+  else currentElementRightClicked.getElementsByClassName("nextContainer")[0].style.display = "none";
 
-  if(hasLabelCheckbox.checked) currentElementRightClicked.parentNode.getElementsByClassName("labelContainer")[0].style.display = "block";
-  else currentElementRightClicked.parentNode.getElementsByClassName("labelContainer")[0].style.display = "none";
+  if(hasLabelCheckbox.checked) currentElementRightClicked.getElementsByClassName("labelContainer")[0].style.display = "block";
+  else currentElementRightClicked.getElementsByClassName("labelContainer")[0].style.display = "none";
 
-  if(hasCompleteCheckbox.checked) currentElementRightClicked.parentNode.getElementsByClassName("completeContainer")[0].style.display = "block";
-  else currentElementRightClicked.parentNode.getElementsByClassName("completeContainer")[0].style.display = "none";
+  if(hasCompleteCheckbox.checked) currentElementRightClicked.getElementsByClassName("completeContainer")[0].style.display = "block";
+  else currentElementRightClicked.getElementsByClassName("completeContainer")[0].style.display = "none";
 
-  /** 
-  if(hasCompleteCheckbox.checked) currentElementRightClicked.parentNode.getElementsByClassName("completeContainer")[0].style.display = "inline-block";
-  else currentElementRightClicked.parentNode.getElementsByClassName("completeContainer")[0].style.display = "none";*/
+  messageMenu.style.display = "none";
+})
 
+//for deleting messages
+document.getElementById("delete-message").addEventListener("click", function(){
+  currentElementRightClicked.remove();
 })
 
 //will only appear in the context menu if the answer is a question
 addAnswerButton.addEventListener("click", function(){
-
-  console.log(currentElementRightClicked)
   let answer = document.createElement("input");
   answer.type = "text";
   answer.classList.add("answer");
@@ -361,24 +430,44 @@ addAnswerButton.addEventListener("click", function(){
     e.preventDefault();
   })
 
+  //add "next" label to the answers
+  let nextContainer = document.createElement("div");
+  let nextLabel = document.createElement("a");
+  nextLabel.innerText = "Next: "
+  nextContainer.appendChild(nextLabel);
+  let next = document.createElement("input");
+  next.type = "text";
+  next.value = "";
+  next.classList.add("next");
+  nextContainer.appendChild(next);
+
+  nextContainer.classList.add("nextContainer");
+  answerContainer.appendChild(nextContainer);
+
   currentElementRightClicked.parentNode.appendChild(answer);
 })
 
-deleteMessageButton.addEventListener("click", function(){
-  currentElementRightClicked.remove();
-})
-
+//FOR THE ANSWER MENU
 deleteAnswerButton.addEventListener("click", function(){
   currentElementRightClicked.remove();
 })
 
 //hide context menus when clicking outside of them
 function hideContextMenus(e) {
-  if(!e.target.parentNode.classList.contains("dropDown") && !e.target.classList.contains("message") && !e.target.classList.contains("question") && !e.target.classList.contains("answer")) {
+  if(!e.target.parentNode.classList.contains("dropDown") && !e.target.classList.contains("message") && !e.target.classList.contains("question") && !e.target.classList.contains("answer") && !e.target.classList.contains("messageChunkContainer")) {
     summaryMenu.style.display = "none";
     messageMenu.style.display = "none";
     answerMenu.style.display = "none";
+    messageChunkMenu.style.display = "none";
   }
+}
+
+function hideOtherContextMenus(chosenContextMenu) {
+  let contextMenus = document.getElementsByClassName("context-menu");
+  for (i = 0; i < contextMenus.length; i++) {
+    contextMenus[i].style.display = "none";
+  }
+  chosenContextMenu.style.display = "block";
 }
 
 window.addEventListener("click", hideContextMenus, false);
