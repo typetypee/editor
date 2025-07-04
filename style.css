@@ -57,10 +57,15 @@
   border: 2px solid gray;
 }
 
-.nextContainer, .labelContainer, .answerContainer, .completeContainer {
+.nextContainer, .labelContainer, .answerContainer, .completeContainer, .eventContainer{
   margin-left: 20px;
   position: relative;
   white-space: nowrap;
+}
+
+.event {
+  position: relative;
+  border: 2px solid green;
 }
 
 .name {
