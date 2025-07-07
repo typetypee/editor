@@ -57,7 +57,7 @@
   border: 2px solid gray;
 }
 
-.nextContainer, .labelContainer, .answerContainer, .completeContainer, .eventContainer{
+.nextContainer, .labelContainer, .answerContainer, .containerForAnswers, .completeContainer, .eventContainer{
   margin-left: 20px;
   position: relative;
   white-space: nowrap;
@@ -85,4 +85,12 @@
   radius: 5px;
   margin-bottom: 10px;
   min-height: 10px;
+}
+
+.messageChunkContainer.dragOver {
+  background-color: lightblue;
+}
+
+.messageContainer.dragOver {
+  border: 2px solid blue;
 }
